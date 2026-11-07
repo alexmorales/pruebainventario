@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Movimientos | Inventario</title>
+    <link rel="stylesheet" th:href="@{/css/inventario.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('movimientos')}"></aside>
+    <main class="main-content">
+        <header th:replace="~{fragments/topbar :: topbar('MOVIMIENTOS')}"></header>
+        <div class="page-heading"><div><p class="eyebrow">TRAZABILIDAD</p><h1>Movimientos</h1><p class="page-subtitle">Cada entrada, salida y ajuste queda en el historial.</p></div><span class="badge-count" th:text="${#lists.size(movimientos)}">0</span></div>
+        <div class="flash flash-success" th:if="${mensaje}" th:text="${mensaje}"></div>
+        <div class="flash flash-error" th:if="${error}" th:text="${error}"></div>
+        <div class="two-column">
+            <section class="panel">
+                <div class="panel-heading"><div><p class="eyebrow">HISTORIAL</p><h2>Registro de actividad</h2></div></div>
+                <div class="table-wrap"><table class="table-compact">
+                    <thead><tr><th>Tipo</th><th>Producto</th><th>Cantidad</th><th>Antes</th><th>Despues</th><th>Motivo</th><th>Fecha</th></tr></thead>
+                    <tbody>
+                    <tr th:each="movimiento : ${movimientos}">
+                        <td><span class="type-badge" th:classappend="${'type-' + movimiento.tipoMovimiento}" th:text="${movimiento.tipoMovimiento}">ENTRADA</span></td>
+                        <td class="cell-strong" th:text="${'Producto #' + movimiento.idProducto}">Producto</td>
+                        <td th:text="${movimiento.cantidad}">0</td>
+                        <td th:text="${movimiento.stockAnterior}">0</td>
+                        <td th:text="${movimiento.stockNuevo}">0</td>
+                        <td th:text="${movimiento.motivo ?: '—'}">Motivo</td>
+                        <td class="mono" th:text="${#temporals.format(movimiento.fechaMovimiento, 'dd/MM/yy HH:mm')}">Fecha</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(movimientos)}"><td class="empty-cell" colspan="7">Todavia no hay movimientos registrados.</td></tr>
+                    </tbody>
+                </table></div>
+            </section>
+            <form class="panel catalog-form" th:action="@{/movimientos/guardar}" th:object="${movimiento}" method="post">
+                <p class="eyebrow">ACTUALIZAR EXISTENCIAS</p><h2>Nuevo movimiento</h2>
+                <p>El stock se calcula y guarda junto con el historial.</p>
+                <div class="form-grid">
+                    <label class="field"><span>Tipo *</span><select th:field="*{tipoMovimiento}" data-movement-type required><option value="ENTRADA">Entrada</option><option value="SALIDA">Salida</option><option value="AJUSTE">Ajuste a stock</option></select></label>
+                    <label class="field"><span>Producto *</span><select th:field="*{idProducto}" required><option value="">Selecciona producto</option><option th:each="producto : ${productos}" th:value="${producto.idProducto}" th:text="${producto.codigo + ' · ' + producto.nombre + ' (' + producto.stock + ')'}">Producto</option></select></label>
+                    <label class="field" data-quantity-field><span>Cantidad *</span><input th:field="*{cantidad}" type="number" min="1" step="1" value="1"></label>
+                    <label class="field" data-target-stock-field hidden><span>Nuevo stock *</span><input th:field="*{stockNuevo}" type="number" min="0" step="1"></label>
+                    <label class="field"><span>Responsable *</span><select th:field="*{idUsuario}" required><option value="">Selecciona usuario</option><option th:each="usuario : ${usuarios}" th:value="${usuario.idUsuario}" th:text="${usuario.nombre + ' ' + usuario.apellido}">Usuario</option></select></label>
+                    <label class="field"><span>Motivo</span><input th:field="*{motivo}" maxlength="255" placeholder="Reposicion, venta, conteo..."></label>
+                    <p class="form-hint" th:if="${#lists.isEmpty(usuarios)}">No hay usuarios activos. Registra un usuario antes de crear movimientos.</p>
+                    <p class="form-hint" th:if="${#lists.isEmpty(productos)}">No hay productos activos para modificar.</p>
+                </div>
+                <div class="form-actions"><button class="button button-primary" type="submit" th:disabled="${#lists.isEmpty(usuarios) or #lists.isEmpty(productos)}">Guardar movimiento <span aria-hidden="true">→</span></button></div>
+            </form>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/inventario.js}" defer></script>
+</body>
+</html>

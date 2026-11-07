@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <header class="topbar" th:fragment="topbar(section)">
+        <div>
+            <p class="eyebrow">SISTEMA DE INVENTARIO <span>/</span> <span th:text="${section}">RESUMEN</span></p>
+            <p class="topbar-note">Control de existencias y abastecimiento</p>
+        </div>
+        <a class="topbar-link" th:href="@{/movimientos}">Registrar movimiento <span aria-hidden="true">+</span></a>
+    </header>
+</body>
+</html>

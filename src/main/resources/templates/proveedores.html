@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Proveedores | Inventario</title>
+    <link rel="stylesheet" th:href="@{/css/inventario.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('proveedores')}"></aside>
+    <main class="main-content">
+        <header th:replace="~{fragments/topbar :: topbar('PROVEEDORES')}"></header>
+        <div class="page-heading"><div><p class="eyebrow">ABASTECIMIENTO</p><h1>Proveedores</h1><p class="page-subtitle">Contactos asociados a productos y compras.</p></div><span class="badge-count" th:text="${#lists.size(proveedores)}">0</span></div>
+        <div class="flash flash-success" th:if="${mensaje}" th:text="${mensaje}"></div>
+        <div class="flash flash-error" th:if="${error}" th:text="${error}"></div>
+        <div class="two-column">
+            <section class="panel">
+                <div class="panel-heading"><div><p class="eyebrow">DIRECTORIO</p><h2>Contactos registrados</h2></div></div>
+                <div class="table-wrap"><table class="table-compact">
+                    <thead><tr><th>Proveedor</th><th>NIT</th><th>Contacto</th><th>Estado</th><th></th></tr></thead>
+                    <tbody>
+                    <tr th:each="proveedor : ${proveedores}">
+                        <td class="cell-strong" th:text="${proveedor.nombre}">Proveedor</td>
+                        <td class="mono" th:text="${proveedor.nit ?: '—'}">NIT</td>
+                        <td><span th:text="${proveedor.telefono ?: proveedor.correo ?: 'Sin contacto'}">Contacto</span></td>
+                        <td><span class="state-label" th:classappend="${proveedor.estado} ? 'state-on' : 'state-off'" th:text="${proveedor.estado ? 'Activo' : 'Inactivo'}">Activo</span></td>
+                        <td><div class="row-actions"><a class="row-link" th:href="@{/proveedores(editar=${proveedor.idProveedor})}">Editar</a><form th:action="@{/proveedores/{id}/estado(id=${proveedor.idProveedor})}" method="post"><input type="hidden" name="activo" th:value="${!proveedor.estado}"><button class="button-quiet" type="submit" th:text="${proveedor.estado ? 'Desactivar' : 'Activar'}">Desactivar</button></form></div></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(proveedores)}"><td class="empty-cell" colspan="5">Aun no hay proveedores registrados.</td></tr>
+                    </tbody>
+                </table></div>
+            </section>
+            <form class="panel catalog-form" th:action="@{/proveedores/guardar}" th:object="${proveedor}" method="post">
+                <input type="hidden" th:field="*{idProveedor}">
+                <p class="eyebrow" th:text="${proveedor.idProveedor == 0 ? 'NUEVO CONTACTO' : 'EDICION'}">NUEVO CONTACTO</p>
+                <h2 th:text="${proveedor.idProveedor == 0 ? 'Agregar proveedor' : 'Editar proveedor'}">Agregar proveedor</h2>
+                <p>El NIT es opcional, pero debe ser unico.</p>
+                <div class="form-grid">
+                    <label class="field"><span>Nombre *</span><input th:field="*{nombre}" required maxlength="150" placeholder="Razon social"></label>
+                    <label class="field"><span>NIT</span><input th:field="*{nit}" maxlength="30" placeholder="Identificacion tributaria"></label>
+                    <div class="field-row">
+                        <label class="field"><span>Telefono</span><input th:field="*{telefono}" maxlength="20" placeholder="Telefono"></label>
+                        <label class="field"><span>Correo</span><input th:field="*{correo}" type="email" maxlength="150" placeholder="correo@empresa.com"></label>
+                    </div>
+                    <label class="field"><span>Direccion</span><input th:field="*{direccion}" maxlength="200" placeholder="Direccion"></label>
+                    <label class="field field-check"><input th:field="*{estado}" type="checkbox"><span>Proveedor activo</span></label>
+                </div>
+                <div class="form-actions"><a class="button button-secondary" th:href="@{/proveedores}">Limpiar</a><button class="button button-primary" type="submit">Guardar <span aria-hidden="true">→</span></button></div>
+            </form>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/inventario.js}" defer></script>
+</body>
+</html>

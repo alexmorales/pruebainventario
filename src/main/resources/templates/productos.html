@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Productos | Inventario</title>
+    <link rel="stylesheet" th:href="@{/css/inventario.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('productos')}"></aside>
+    <main class="main-content">
+        <header th:replace="~{fragments/topbar :: topbar('PRODUCTOS')}"></header>
+        <div class="page-heading">
+            <div><p class="eyebrow">CATALOGO</p><h1>Productos</h1><p class="page-subtitle">Referencias, precios y niveles de existencia.</p></div>
+            <a class="button button-primary" th:href="@{/productos/nuevo}">Nuevo producto <span aria-hidden="true">+</span></a>
+        </div>
+        <div class="flash flash-success" th:if="${mensaje}" th:text="${mensaje}"></div>
+        <div class="flash flash-error" th:if="${error}" th:text="${error}"></div>
+        <section class="panel table-panel">
+            <div class="table-toolbar">
+                <div><strong th:text="${#lists.size(productos)} + ' referencias'">0 referencias</strong><span class="toolbar-divider">/</span><span>Stock controlado</span></div>
+                <label class="search-field"><span class="search-symbol" aria-hidden="true">⌕</span><input type="search" placeholder="Buscar producto o codigo" data-table-filter="product-table" aria-label="Buscar producto"></label>
+            </div>
+            <div class="table-wrap">
+                <table id="product-table">
+                    <thead><tr><th>Producto</th><th>Categoria</th><th>Proveedor</th><th>Precio venta</th><th>Stock</th><th>Estado</th><th><span class="sr-only">Acciones</span></th></tr></thead>
+                    <tbody>
+                    <tr th:each="producto : ${productos}" th:attr="data-search=${producto.nombre + ' ' + producto.codigo}">
+                        <td><div class="product-cell"><span class="product-monogram" th:text="${#strings.substring(producto.nombre, 0, 1)}">P</span><span><strong th:text="${producto.nombre}">Producto</strong><small class="mono" th:text="${producto.codigo}">CODIGO</small></span></div></td>
+                        <td th:text="${producto.idCategoria != null ? categoriaNombres[producto.idCategoria] : 'Sin categoria'}">Categoria</td>
+                        <td th:text="${producto.idProveedor != null ? proveedorNombres[producto.idProveedor] : 'Sin proveedor'}">Proveedor</td>
+                        <td class="money" th:text="${'$ ' + #numbers.formatDecimal(producto.precioVenta, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                        <td><span class="stock-pill" th:classappend="${producto.stock <= producto.stockMinimo} ? 'stock-low' : 'stock-ok'" th:text="${producto.stock} + ' / ' + ${producto.stockMinimo}">0 / 5</span></td>
+                        <td><span class="state-label" th:classappend="${producto.estado} ? 'state-on' : 'state-off'" th:text="${producto.estado ? 'Activo' : 'Inactivo'}">Activo</span></td>
+                        <td><div class="row-actions"><a class="row-link" th:href="@{/productos/{id}/editar(id=${producto.idProducto})}">Editar</a><form th:action="@{/productos/{id}/estado(id=${producto.idProducto})}" method="post"><input type="hidden" name="activo" th:value="${!producto.estado}"><button class="button-quiet" type="submit" th:text="${producto.estado ? 'Desactivar' : 'Activar'}">Desactivar</button></form></div></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(productos)}"><td class="empty-cell" colspan="7">No hay productos registrados. Agrega la primera referencia para comenzar.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+<script th:src="@{/js/inventario.js}" defer></script>
+</body>
+</html>

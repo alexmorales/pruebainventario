@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${producto.idProducto == 0 ? 'Nuevo producto' : 'Editar producto'} + ' | Inventario'">Producto | Inventario</title>
+    <link rel="stylesheet" th:href="@{/css/inventario.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('productos')}"></aside>
+    <main class="main-content">
+        <header th:replace="~{fragments/topbar :: topbar('PRODUCTOS')}"></header>
+        <div class="page-heading">
+            <div><p class="eyebrow">CATALOGO / PRODUCTOS</p><h1 th:text="${producto.idProducto == 0 ? 'Nuevo producto' : 'Editar producto'}">Nuevo producto</h1><p class="page-subtitle">El stock se ajusta desde movimientos para conservar trazabilidad.</p></div>
+            <a class="button button-secondary" th:href="@{/productos}">Volver al catalogo</a>
+        </div>
+        <div class="flash flash-error" th:if="${error}" th:text="${error}"></div>
+        <form class="form-panel" th:action="@{/productos/guardar}" th:object="${producto}" method="post">
+            <input type="hidden" th:field="*{idProducto}">
+            <div class="form-section-heading"><span>01</span><div><h2>Identificacion</h2><p>Datos visibles en el catalogo.</p></div></div>
+            <div class="form-grid">
+                <label class="field"><span>Nombre *</span><input th:field="*{nombre}" required maxlength="150" placeholder="Ej. Cafe molido 500 g"></label>
+                <label class="field"><span>Codigo *</span><input th:field="*{codigo}" required maxlength="50" placeholder="PRD-0001"></label>
+                <label class="field"><span>Categoria</span><select th:field="*{idCategoria}"><option value="">Sin categoria</option><option th:each="categoria : ${categorias}" th:value="${categoria.idCategoria}" th:text="${categoria.nombre}">Categoria</option></select></label>
+                <label class="field"><span>Proveedor</span><select th:field="*{idProveedor}"><option value="">Sin proveedor</option><option th:each="proveedor : ${proveedores}" th:value="${proveedor.idProveedor}" th:text="${proveedor.nombre}">Proveedor</option></select></label>
+                <label class="field field-wide"><span>Descripcion</span><textarea th:field="*{descripcion}" rows="3" placeholder="Detalles utiles para identificar el producto"></textarea></label>
+            </div>
+            <div class="form-section-heading"><span>02</span><div><h2>Precios y stock inicial</h2><p>Usa movimientos posteriores para registrar entradas y salidas.</p></div></div>
+            <div class="form-grid form-grid-four">
+                <label class="field"><span>Precio de compra *</span><input th:field="*{precioCompra}" type="number" min="0" step="0.01" required></label>
+                <label class="field"><span>Precio de venta *</span><input th:field="*{precioVenta}" type="number" min="0" step="0.01" required></label>
+                <label class="field" th:if="${producto.idProducto == 0}"><span>Stock inicial *</span><input th:field="*{stock}" type="number" min="0" step="1" required></label>
+                <div class="field" th:if="${producto.idProducto != 0}"><span>Stock actual</span><div class="readonly-value" th:text="${producto.stock}">0</div></div>
+                <label class="field"><span>Stock minimo *</span><input th:field="*{stockMinimo}" type="number" min="0" step="1" required></label>
+                <label class="field"><span>Unidad de medida</span><input th:field="*{unidadMedida}" maxlength="30" placeholder="UNIDAD"></label>
+                <label class="field field-check"><input th:field="*{estado}" type="checkbox"><span>Producto activo</span></label>
+            </div>
+            <div class="form-actions"><a class="button button-secondary" th:href="@{/productos}">Cancelar</a><button class="button button-primary" type="submit">Guardar producto <span aria-hidden="true">→</span></button></div>
+        </form>
+    </main>
+</div>
+<script th:src="@{/js/inventario.js}" defer></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Categorias | Inventario</title>
+    <link rel="stylesheet" th:href="@{/css/inventario.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('categorias')}"></aside>
+    <main class="main-content">
+        <header th:replace="~{fragments/topbar :: topbar('CATEGORIAS')}"></header>
+        <div class="page-heading"><div><p class="eyebrow">ESTRUCTURA DEL CATALOGO</p><h1>Categorias</h1><p class="page-subtitle">Agrupa productos para mantener un catalogo claro.</p></div><span class="badge-count" th:text="${#lists.size(categorias)}">0</span></div>
+        <div class="flash flash-success" th:if="${mensaje}" th:text="${mensaje}"></div>
+        <div class="flash flash-error" th:if="${error}" th:text="${error}"></div>
+        <div class="two-column">
+            <section class="panel">
+                <div class="panel-heading"><div><p class="eyebrow">CLASIFICACION</p><h2>Grupos registrados</h2></div></div>
+                <div class="table-wrap"><table class="table-compact">
+                    <thead><tr><th>Nombre</th><th>Descripcion</th><th>Estado</th><th></th></tr></thead>
+                    <tbody>
+                    <tr th:each="categoria : ${categorias}">
+                        <td class="cell-strong" th:text="${categoria.nombre}">Categoria</td>
+                        <td th:text="${categoria.descripcion ?: 'Sin descripcion'}">Descripcion</td>
+                        <td><span class="state-label" th:classappend="${categoria.estado} ? 'state-on' : 'state-off'" th:text="${categoria.estado ? 'Activa' : 'Inactiva'}">Activa</span></td>
+                        <td><div class="row-actions"><a class="row-link" th:href="@{/categorias(editar=${categoria.idCategoria})}">Editar</a><form th:action="@{/categorias/{id}/estado(id=${categoria.idCategoria})}" method="post"><input type="hidden" name="activo" th:value="${!categoria.estado}"><button class="button-quiet" type="submit" th:text="${categoria.estado ? 'Desactivar' : 'Activar'}">Desactivar</button></form></div></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(categorias)}"><td class="empty-cell" colspan="4">Aun no hay categorias.</td></tr>
+                    </tbody>
+                </table></div>
+            </section>
+            <form class="panel catalog-form" th:action="@{/categorias/guardar}" th:object="${categoria}" method="post">
+                <input type="hidden" th:field="*{idCategoria}">
+                <p class="eyebrow" th:text="${categoria.idCategoria == 0 ? 'NUEVO GRUPO' : 'EDICION'}">NUEVO GRUPO</p>
+                <h2 th:text="${categoria.idCategoria == 0 ? 'Crear categoria' : 'Editar categoria'}">Crear categoria</h2>
+                <p>Los nombres no se pueden repetir.</p>
+                <div class="form-grid">
+                    <label class="field"><span>Nombre *</span><input th:field="*{nombre}" required maxlength="100" placeholder="Ej. Aseo"></label>
+                    <label class="field"><span>Descripcion</span><textarea th:field="*{descripcion}" rows="3" maxlength="255" placeholder="Descripcion breve"></textarea></label>
+                    <label class="field field-check"><input th:field="*{estado}" type="checkbox"><span>Categoria activa</span></label>
+                </div>
+                <div class="form-actions"><a class="button button-secondary" th:href="@{/categorias}">Limpiar</a><button class="button button-primary" type="submit">Guardar <span aria-hidden="true">→</span></button></div>
+            </form>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/inventario.js}" defer></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Compras | Inventario</title>
+    <link rel="stylesheet" th:href="@{/css/inventario.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('compras')}"></aside>
+    <main class="main-content">
+        <header th:replace="~{fragments/topbar :: topbar('COMPRAS')}"></header>
+        <div class="page-heading"><div><p class="eyebrow">ABASTECIMIENTO</p><h1>Compras</h1><p class="page-subtitle">Registra pedidos y actualiza stock al recibirlos.</p></div><span class="badge-count" th:text="${#lists.size(compras)}">0</span></div>
+        <div class="flash flash-success" th:if="${mensaje}" th:text="${mensaje}"></div>
+        <div class="flash flash-error" th:if="${error}" th:text="${error}"></div>
+        <div class="two-column">
+            <section class="panel">
+                <div class="panel-heading"><div><p class="eyebrow">ORDENES</p><h2>Historial de compras</h2></div></div>
+                <div class="table-wrap"><table class="table-compact">
+                    <thead><tr><th>Orden</th><th>Proveedor</th><th>Factura</th><th>Total</th><th>Estado</th><th></th></tr></thead>
+                    <tbody>
+                    <tr th:each="compra : ${compras}">
+                        <td class="mono" th:text="${'#' + compra.idCompra}">#1</td>
+                        <td class="cell-strong" th:text="${proveedorNombres[compra.idProveedor] ?: 'Proveedor #' + compra.idProveedor}">Proveedor</td>
+                        <td th:text="${compra.numeroFactura ?: '—'}">Factura</td>
+                        <td class="money" th:text="${'$ ' + #numbers.formatDecimal(compra.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                        <td><span class="type-badge" th:classappend="${compra.estado == 'RECIBIDA' ? 'type-ENTRADA' : (compra.estado == 'ANULADA' ? 'type-SALIDA' : 'type-AJUSTE')}" th:text="${compra.estado}">PENDIENTE</span></td>
+                        <td><a class="row-link" th:href="@{/compras/{id}(id=${compra.idCompra})}">Abrir orden →</a></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(compras)}"><td class="empty-cell" colspan="6">No hay compras registradas.</td></tr>
+                    </tbody>
+                </table></div>
+            </section>
+            <form class="panel catalog-form" th:action="@{/compras/crear}" method="post">
+                <p class="eyebrow">NUEVA ORDEN</p><h2>Crear compra</h2>
+                <p>Despues agrega una o mas lineas antes de recibir.</p>
+                <div class="form-grid">
+                    <label class="field"><span>Proveedor *</span><select name="idProveedor" required><option value="">Selecciona proveedor</option><option th:each="proveedor : ${proveedores}" th:value="${proveedor.idProveedor}" th:text="${proveedor.nombre}">Proveedor</option></select></label>
+                    <label class="field"><span>Responsable *</span><select name="idUsuario" required><option value="">Selecciona usuario</option><option th:each="usuario : ${usuarios}" th:value="${usuario.idUsuario}" th:text="${usuario.nombre + ' ' + usuario.apellido}">Usuario</option></select></label>
+                    <label class="field"><span>Numero de factura</span><input name="numeroFactura" maxlength="50" placeholder="Opcional"></label>
+                    <p class="form-hint" th:if="${#lists.isEmpty(usuarios)}">No hay usuarios activos. Registra un usuario antes de crear compras.</p>
+                    <p class="form-hint" th:if="${#lists.isEmpty(proveedores)}">No hay proveedores activos.</p>
+                </div>
+                <div class="form-actions"><button class="button button-primary" type="submit" th:disabled="${#lists.isEmpty(usuarios) or #lists.isEmpty(proveedores)}">Crear y agregar productos <span aria-hidden="true">→</span></button></div>
+            </form>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/inventario.js}" defer></script>
+</body>
+</html>

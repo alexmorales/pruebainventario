@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${'Compra #' + compra.idCompra + ' | Inventario'}">Compra | Inventario</title>
+    <link rel="stylesheet" th:href="@{/css/inventario.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('compras')}"></aside>
+    <main class="main-content">
+        <header th:replace="~{fragments/topbar :: topbar('COMPRAS / DETALLE')}"></header>
+        <div class="page-heading">
+            <div><p class="eyebrow">ORDEN DE COMPRA</p><h1 th:text="${'Compra #' + compra.idCompra}">Compra</h1><p class="page-subtitle">Agrega productos mientras este pendiente; al recibir, el stock se actualiza.</p></div>
+            <div class="purchase-actions"><a class="button button-secondary" th:href="@{/compras}">Todas las compras</a><span class="type-badge" th:classappend="${compra.estado == 'RECIBIDA' ? 'type-ENTRADA' : (compra.estado == 'ANULADA' ? 'type-SALIDA' : 'type-AJUSTE')}" th:text="${compra.estado}">PENDIENTE</span></div>
+        </div>
+        <div class="flash flash-success" th:if="${mensaje}" th:text="${mensaje}"></div>
+        <div class="flash flash-error" th:if="${error}" th:text="${error}"></div>
+        <div class="purchase-summary">
+            <span>Proveedor <strong th:text="${compra.idProveedor}">0</strong></span>
+            <span>Factura <strong th:text="${compra.numeroFactura ?: 'Sin numero'}">Sin numero</strong></span>
+            <span>Creada <strong th:text="${#temporals.format(compra.fechaCompra, 'dd/MM/yyyy HH:mm')}">Fecha</strong></span>
+        </div>
+        <div class="two-column">
+            <section class="panel">
+                <div class="panel-heading"><div><p class="eyebrow">LINEAS DE COMPRA</p><h2>Productos solicitados</h2></div><span class="badge-count" th:text="${#lists.size(detalles)}">0</span></div>
+                <div class="table-wrap"><table class="table-compact">
+                    <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio unitario</th><th>Subtotal</th></tr></thead>
+                    <tbody>
+                    <tr th:each="detalle : ${detalles}">
+                        <td class="cell-strong" th:text="${productoNombres[detalle.idProducto] ?: 'Producto #' + detalle.idProducto}">Producto</td>
+                        <td th:text="${detalle.cantidad}">0</td>
+                        <td class="money" th:text="${'$ ' + #numbers.formatDecimal(detalle.precioUnitario, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                        <td class="money" th:text="${'$ ' + #numbers.formatDecimal(detalle.subtotal, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(detalles)}"><td class="empty-cell" colspan="4">Agrega al menos un producto antes de recibir esta compra.</td></tr>
+                    </tbody>
+                </table></div>
+                <div class="detail-total"><span>Total de compra</span><strong th:text="${'$ ' + #numbers.formatDecimal(compra.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong></div>
+                <div class="form-actions purchase-actions" th:if="${compra.estado == 'PENDIENTE'}">
+                    <form th:action="@{/compras/{id}/anular(id=${compra.idCompra})}" method="post"><button class="button button-secondary" type="submit">Anular compra</button></form>
+                    <form th:action="@{/compras/{id}/recibir(id=${compra.idCompra})}" method="post"><button class="button button-primary" type="submit" th:disabled="${#lists.isEmpty(detalles)}">Recibir compra <span aria-hidden="true">→</span></button></form>
+                </div>
+            </section>
+            <form class="panel catalog-form" th:if="${compra.estado == 'PENDIENTE'}" th:action="@{/compras/{id}/detalles(id=${compra.idCompra})}" method="post">
+                <p class="eyebrow">AGREGAR LINEA</p><h2>Producto recibido</h2>
+                <p>El subtotal y el total se calculan automaticamente.</p>
+                <div class="form-grid">
+                    <label class="field"><span>Producto *</span><select name="idProducto" required><option value="">Selecciona producto</option><option th:each="producto : ${productos}" th:value="${producto.idProducto}" th:text="${producto.codigo + ' · ' + producto.nombre}">Producto</option></select></label>
+                    <div class="field-row">
+                        <label class="field"><span>Cantidad *</span><input name="cantidad" type="number" min="1" step="1" required></label>
+                        <label class="field"><span>Precio unitario *</span><input name="precioUnitario" type="number" min="0" step="0.01" required></label>
+                    </div>
+                </div>
+                <div class="form-actions"><button class="button button-primary" type="submit" th:disabled="${#lists.isEmpty(productos)}">Agregar producto <span aria-hidden="true">+</span></button></div>
+            </form>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/inventario.js}" defer></script>
+</body>
+</html>

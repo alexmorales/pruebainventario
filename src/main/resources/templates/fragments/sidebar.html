@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <aside class="sidebar" th:fragment="sidebar(active)">
+        <a class="brand" th:href="@{/}">
+            <span class="brand-mark">I</span>
+            <span class="brand-copy"><strong>INVENTARIO</strong><small>OPERACIONES</small></span>
+        </a>
+        <div class="nav-caption">GESTION</div>
+        <nav class="primary-nav" aria-label="Navegacion principal">
+            <a th:href="@{/}" th:classappend="${active == 'inicio'} ? 'is-active' : ''">
+                <span class="nav-index">00</span><span>Resumen</span>
+            </a>
+            <a th:href="@{/productos}" th:classappend="${active == 'productos'} ? 'is-active' : ''">
+                <span class="nav-index">01</span><span>Productos</span>
+            </a>
+            <a th:href="@{/categorias}" th:classappend="${active == 'categorias'} ? 'is-active' : ''">
+                <span class="nav-index">02</span><span>Categorias</span>
+            </a>
+            <a th:href="@{/proveedores}" th:classappend="${active == 'proveedores'} ? 'is-active' : ''">
+                <span class="nav-index">03</span><span>Proveedores</span>
+            </a>
+            <a th:href="@{/movimientos}" th:classappend="${active == 'movimientos'} ? 'is-active' : ''">
+                <span class="nav-index">04</span><span>Movimientos</span>
+            </a>
+            <a th:href="@{/compras}" th:classappend="${active == 'compras'} ? 'is-active' : ''">
+                <span class="nav-index">05</span><span>Compras</span>
+            </a>
+        </nav>
+        <div class="sidebar-foot">
+            <span class="status-dot"></span>
+            <span>Gestion local</span>
+        </div>
+    </aside>
+</body>
+</html>

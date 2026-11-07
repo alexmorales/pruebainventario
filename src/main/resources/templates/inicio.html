@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Resumen | Inventario</title>
+    <link rel="stylesheet" th:href="@{/css/inventario.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar('inicio')}"></aside>
+    <main class="main-content">
+        <header th:replace="~{fragments/topbar :: topbar('RESUMEN')}"></header>
+        <section class="page-intro">
+            <div>
+                <p class="eyebrow">VISTA GENERAL</p>
+                <h1>El inventario,<br><em>bajo control.</em></h1>
+            </div>
+            <a class="button button-primary" th:href="@{/productos/nuevo}">Agregar producto <span aria-hidden="true">+</span></a>
+        </section>
+
+        <section class="metric-grid" aria-label="Indicadores">
+            <article class="metric metric-featured">
+                <span class="metric-label">PRODUCTOS ACTIVOS</span>
+                <strong th:text="${totalProductos ?: 0}">0</strong>
+                <span class="metric-foot">Referencias en catalogo</span>
+            </article>
+            <article class="metric">
+                <span class="metric-label">BAJO STOCK</span>
+                <strong th:text="${#lists.size(bajoStock ?: {})}">0</strong>
+                <span class="metric-foot">En o bajo el minimo</span>
+            </article>
+            <article class="metric">
+                <span class="metric-label">CATEGORIAS</span>
+                <strong th:text="${totalCategorias ?: 0}">0</strong>
+                <span class="metric-foot">Grupos de productos</span>
+            </article>
+            <article class="metric">
+                <span class="metric-label">COMPRAS PENDIENTES</span>
+                <strong th:text="${comprasPendientes ?: 0}">0</strong>
+                <span class="metric-foot">Por recibir</span>
+            </article>
+        </section>
+
+        <section class="dashboard-grid">
+            <article class="panel">
+                <div class="panel-heading">
+                    <div><p class="eyebrow">ATENCION</p><h2>Existencias por reponer</h2></div>
+                    <a class="text-link" th:href="@{/productos}">Ver catalogo <span aria-hidden="true">→</span></a>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Producto</th><th>Codigo</th><th>Disponible</th><th>Minimo</th><th></th></tr></thead>
+                        <tbody>
+                        <tr th:each="producto : ${bajoStock ?: {}}">
+                            <td class="cell-strong" th:text="${producto.nombre}">Producto</td>
+                            <td class="mono" th:text="${producto.codigo}">COD-01</td>
+                            <td><span class="stock-pill stock-low" th:text="${producto.stock}">0</span></td>
+                            <td th:text="${producto.stockMinimo}">5</td>
+                            <td><a class="row-link" th:href="@{/movimientos}">Ajustar stock</a></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(bajoStock ?: {})}"><td class="empty-cell" colspan="5">Sin productos bajo el minimo.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+            <article class="panel panel-activity">
+                <div class="panel-heading">
+                    <div><p class="eyebrow">TRAZABILIDAD</p><h2>Actividad reciente</h2></div>
+                    <a class="text-link" th:href="@{/movimientos}">Ver todos <span aria-hidden="true">→</span></a>
+                </div>
+                <div class="activity-list">
+                    <div class="activity-row" th:each="movimiento : ${ultimosMovimientos ?: {}}">
+                        <span class="activity-mark" th:classappend="${movimiento.tipoMovimiento == 'ENTRADA'} ? 'mark-in' : (${movimiento.tipoMovimiento == 'SALIDA'} ? 'mark-out' : 'mark-adjust')"></span>
+                        <div class="activity-main">
+                            <strong th:text="${movimiento.tipoMovimiento}">ENTRADA</strong>
+                            <span>Producto #<span th:text="${movimiento.idProducto}">1</span> · <span th:text="${movimiento.motivo ?: 'Sin motivo'}">Reposicion</span></span>
+                        </div>
+                        <span class="activity-quantity" th:text="${movimiento.tipoMovimiento == 'SALIDA' ? '-' : '+'} + ${movimiento.cantidad}">+5</span>
+                    </div>
+                    <div class="empty-state" th:if="${#lists.isEmpty(ultimosMovimientos ?: {})}">Los movimientos registrados apareceran aqui.</div>
+                </div>
+            </article>
+        </section>
+        <section class="quick-actions">
+            <a th:href="@{/compras}"><span class="action-number">A</span><span><strong>Abastecimiento</strong><small>Crear o recibir compras</small></span><span class="action-arrow">→</span></a>
+            <a th:href="@{/proveedores}"><span class="action-number">B</span><span><strong>Proveedores</strong><small>Administrar contactos</small></span><span class="action-arrow">→</span></a>
+            <a th:href="@{/categorias}"><span class="action-number">C</span><span><strong>Categorias</strong><small>Ordenar el catalogo</small></span><span class="action-arrow">→</span></a>
+        </section>
+    </main>
+</div>
+<script th:src="@{/js/inventario.js}" defer></script>
+</body>
+</html>
